@@ -1,0 +1,39 @@
+spring:
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+    gateway:
+      routes:
+        - id: dogOj-service-user
+          uri: lb://dogOj-service-user
+          predicates:
+            - Path=/api/user/**
+        - id: dogOj-service-question
+          uri: lb://dogOj-service-question
+          predicates:
+            - Path=/api/question/**
+        - id: dogOj-service-judge
+          uri: lb://dogOj-service-judge
+          predicates:
+            - Path=/api/judge/**
+  application:
+    name: dogOj-gateway
+  main:
+    web-application-type: reactive
+server:
+  port: 8101
+
+knife4j:
+  gateway:
+    enabled: true
+    # 指定服务发现的模式聚合微服务文档
+    strategy: discover
+    discover:
+      enabled: true
+      # 指定版本号(Swagger2|OpenAPI3)
+      version : Swagger2
+      # 需要排除的微服务(eg:网关服务)
+      excluded-services:
+        - dogOj-gateway
+
