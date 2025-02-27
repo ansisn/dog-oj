@@ -106,8 +106,6 @@ public class JudgeServiceImpl implements JudgeService {
         questionService.updateQuestionById(questionUpdate);
         //8)跟新用户通过率 todo
 
-
-
         if (!update) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "题目状态更新错误");
         }

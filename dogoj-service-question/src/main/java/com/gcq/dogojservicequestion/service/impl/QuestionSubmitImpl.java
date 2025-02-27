@@ -21,11 +21,13 @@ import com.gcq.dogojserviceclient.service.JudgeFeignClient;
 
 import com.gcq.dogojserviceclient.service.UserFeignClient;
 import com.gcq.dogojservicequestion.mapper.QuestionSubmitMapper;
+import com.gcq.dogojservicequestion.producer.MyMessageProducer;
 import com.gcq.dogojservicequestion.service.QuestionService;
 import com.gcq.dogojservicequestion.service.QuestionSubmitService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
@@ -53,6 +55,8 @@ public class QuestionSubmitImpl extends ServiceImpl<QuestionSubmitMapper, Questi
     @Lazy
     private JudgeFeignClient judgeFeignClient;
 
+    @Resource
+    private MyMessageProducer myMessageProducer;
     /**
      * 提交题目
      *
@@ -90,10 +94,13 @@ public class QuestionSubmitImpl extends ServiceImpl<QuestionSubmitMapper, Questi
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "数据插入失败");
         }
         Long questionSubmitId = questionSubmit.getId();
-        // 执行判题服务
-        CompletableFuture.runAsync(() -> {
-            judgeFeignClient.doJudge(questionSubmitId,loginUser);
-        });
+        // 发送消息
+        myMessageProducer.sendMessage("code_exchange", "my_routingKey", String.valueOf(questionSubmitId));
+
+//        // 执行判题服务
+//        CompletableFuture.runAsync(() -> {
+//            judgeFeignClient.doJudge(questionSubmitId,loginUser);
+//        });
         return questionSubmitId;
     }
 
